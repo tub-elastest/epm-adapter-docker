@@ -11,8 +11,8 @@ LABEL commit_date=$COMMIT_DATE
 ARG VERSION=unspecified
 LABEL version=$VERSION
 
-COPY epm.jar .
+COPY epm-adapter-docker.jar .
 
-EXPOSE 8180
+EXPOSE 50053
 
-ENTRYPOINT java -jar epm.jar
+ENTRYPOINT java -jar epm-adapter-docker.jar

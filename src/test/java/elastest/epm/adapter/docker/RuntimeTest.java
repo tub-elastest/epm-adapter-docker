@@ -29,6 +29,7 @@ public class RuntimeTest {
     }
 
     @Test
+    @Ignore
     public void deployPackage() throws IOException {
 
         PoP poP = PoP.newBuilder().setInterfaceEndpoint("unix:///var/run/docker.sock").build();
