@@ -49,10 +49,9 @@ The adapter is implemented using java, Spring Boot, Docker and gRPC libraries.
 # How to use this image
 
 
-To start the adapter in a docker container run this command:
+To start the adapter run this command:
 ```bash
-./gradlew clean build -x test
-docker run -v /var/run/docker.sock:/var/run/docker.sock -p 50053:50053 --expose 50053 -i -t epm-adapter-docker
+./gradlew clean build -x test && java -jar build/libs/epm-adapter-docker-0.0.1-SNAPSHOT.jar
 ```
 
 The package has to be a **tar** file and has to have the following structure:

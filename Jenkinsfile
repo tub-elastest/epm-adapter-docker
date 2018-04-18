@@ -15,11 +15,11 @@ node('docker'){
             stage "Unit tests"
                 echo ("Starting unit tests...")
                 //sh './gradlew test jacocoTestReport'
-                //sh './gradlew test'
+                sh './gradlew test'
 
             stage "Build image - Package"
                 echo ("Building docker image...")
-                sh 'cp build/libs/epm-adapter-docker-*.jar docker/elastest-platform-manager/epm-adapter-docker.jar'
+                sh 'cp build/libs/epm-adapter-docker-*.jar docker/epm-adapter-docker/epm-adapter-docker.jar'
                 sh 'docker build --build-arg GIT_COMMIT=$(git rev-parse HEAD) --build-arg COMMIT_DATE=$(git log -1 --format=%cd --date=format:%Y-%m-%dT%H:%M:%S) . -t elastest/epm-adapter-docker:latest'
                 def myimage = docker.image('elastest/epm-adapter-docker:latest')
 
