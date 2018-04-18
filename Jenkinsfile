@@ -3,7 +3,7 @@ node('docker'){
         def mycontainer = docker.image('elastest/ci-docker-siblings:latest')
         mycontainer.pull() // make sure we have the latest available from Docker Hub
         echo("the node is up")
-    
+
         mycontainer.inside("-u jenkins -v /var/run/docker.sock:/var/run/docker.sock:rw") {
 
             git 'https://github.com/mpauls/epm-adapter-docker'
