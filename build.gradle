@@ -1,0 +1,81 @@
+buildscript {
+	ext {
+		springBootVersion = '1.5.4.RELEASE'
+        grpcVersion = "1.6.1"
+
+    }
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+plugins {
+    id "com.google.protobuf" version "0.8.4"
+}
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+
+group = 'elastest.epm.adapter.docker'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+}
+
+
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter')
+
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-compress
+    compile group: 'org.apache.commons', name: 'commons-compress', version: '1.16.1'
+
+    // https://mvnrepository.com/artifact/io.grpc/grpc-stub
+    compile group: 'io.grpc', name: 'grpc-stub', version: grpcVersion
+
+    // https://mvnrepository.com/artifact/io.grpc/grpc-protobuf
+    compile group: 'io.grpc', name: 'grpc-netty', version: grpcVersion
+
+    // https://mvnrepository.com/artifact/io.grpc/grpc-protobuf
+    compile group: 'io.grpc', name: 'grpc-protobuf', version: grpcVersion
+
+    // https://mvnrepository.com/artifact/com.github.docker-java/docker-java
+    compile group: 'com.github.docker-java', name: 'docker-java', version: '3.0.12'
+
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: springBootVersion
+
+    // https://mvnrepository.com/artifact/org.springframework.data/spring-data-jpa
+    compile group: 'org.springframework.data', name: 'spring-data-jpa', version: '1.11.4.RELEASE'
+
+    // https://mvnrepository.com/artifact/org.hsqldb/hsqldb
+    compile group: 'org.hsqldb', name: 'hsqldb', version: '2.3.2'
+
+    // https://mvnrepository.com/artifact/org.yaml/snakeyaml
+    compile group: 'org.yaml', name: 'snakeyaml', version: '1.19'
+
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.1.0'
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {
+                    outputSubDir = 'generated-protobuf'
+                }
+            }
+        }
+    }
+
+    generatedFilesBaseDir = "${projectDir}/src/"
+}
