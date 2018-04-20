@@ -41,13 +41,13 @@ public class EpmAdapterDockerApplication implements CommandLineRunner {
 
 	public static void main(String[] args) throws InterruptedException {
         Utils utils = new Utils();
-        if(args.length >= 3 && args[0].equals("--register-pop")) {
+        if(args.length >= 3 && args[0].equals("--register-adapter")) {
             adapterId = utils.register(args[1], args[2]);
             epmIp = args[1];
         }
-        else if(args.length == 1 && args[0].equals("--register-pop")){
-            adapterId = utils.register("localhost", "localhost");
-            epmIp = "localhost";
+        else if(args.length == 1 && args[0].equals("--register-adapter")){
+            adapterId = utils.register("elastest-epm", "elastest-epm-adapter-docker");
+            epmIp = "elastest-epm";
         }
 		SpringApplication.run(EpmAdapterDockerApplication.class, args);
 	}
