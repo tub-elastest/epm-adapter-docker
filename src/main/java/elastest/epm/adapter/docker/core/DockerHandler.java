@@ -38,6 +38,7 @@ public class DockerHandler {
     private DockerClient getDockerClient(PoP poP) {
 
         String endpoint = poP.getInterfaceEndpoint();
+        if(endpoint.equals("elastest-epm-adapter-docker")) endpoint = "unix:///var/run/docker.sock";
         DockerClientConfig dockerClientConfig =
                 DefaultDockerClientConfig.createDefaultConfigBuilder()
                         .withDockerHost(endpoint)
@@ -48,6 +49,7 @@ public class DockerHandler {
     private DockerClient getDockerClientWithCredentials(PoP poP, DockerCredentials dockerCredentials) {
 
         String endpoint = poP.getInterfaceEndpoint();
+        if(endpoint.equals("elastest-epm-adapter-docker")) endpoint = "unix:///var/run/docker.sock";
         DockerClientConfig dockerClientConfig =
                 DefaultDockerClientConfig.createDefaultConfigBuilder()
                         .withDockerHost(endpoint)
