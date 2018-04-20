@@ -1,10 +1,6 @@
 package elastest.epm.adapter.docker.generated;
 
-import elastest.epm.adapter.docker.AdapterException;
 import io.grpc.stub.ClientCalls;
-import org.apache.commons.compress.archivers.ArchiveException;
-
-import java.io.IOException;
 
 import static io.grpc.MethodDescriptor.generateFullMethodName;
 import static io.grpc.stub.ClientCalls.blockingUnaryCall;

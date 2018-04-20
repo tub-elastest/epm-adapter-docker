@@ -1,12 +1,12 @@
-package elastest.epm.adapter.docker;
+package elastest.epm.adapter.docker.core;
 
 import com.google.protobuf.ByteString;
+import elastest.epm.adapter.docker.Utils;
 import elastest.epm.adapter.docker.core.DockerHandler;
+import elastest.epm.adapter.docker.exceptions.AdapterException;
 import elastest.epm.adapter.docker.generated.*;
-import elastest.epm.adapter.docker.model.Network;
+import elastest.epm.adapter.docker.model.*;
 import elastest.epm.adapter.docker.model.Package;
-import elastest.epm.adapter.docker.model.ResourceGroup;
-import elastest.epm.adapter.docker.model.VDU;
 import elastest.epm.adapter.docker.repository.PackageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

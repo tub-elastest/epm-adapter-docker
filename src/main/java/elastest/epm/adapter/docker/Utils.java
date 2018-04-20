@@ -4,21 +4,23 @@ import com.github.dockerjava.api.exception.BadRequestException;
 import com.github.dockerjava.api.model.*;
 import com.google.gson.Gson;
 import elastest.epm.adapter.docker.generated.*;
-import elastest.epm.adapter.docker.model.KeyValuePair;
+import elastest.epm.adapter.docker.model.*;
 import elastest.epm.adapter.docker.model.Network;
-import elastest.epm.adapter.docker.model.ResourceGroup;
-import elastest.epm.adapter.docker.model.VDU;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -236,6 +238,8 @@ public class Utils {
     }
 
     public String register(String epmIp, String adapterIp) throws InterruptedException {
+        HttpClient httpClient = HttpClientBuilder.create().build(); //Use this instead
+
         ManagedChannelBuilder<?> channelBuilder =
                 ManagedChannelBuilder.forAddress(epmIp, 50050).usePlaintext(true);
         ManagedChannel channel = channelBuilder.build();
@@ -244,6 +248,14 @@ public class Utils {
         for(int i = 0; i < 10; i++){
             try{
                 ResourceIdentifier id = stub.registerAdapter(adapterProto);
+
+                HttpPost request = new HttpPost("http://" + epmIp + ":8180/v1/pop");
+                StringEntity params =new StringEntity(" {\"name\": \"compose-" + adapterIp + "\", \"interfaceEndpoint\":" + adapterIp + ", " +
+                                                        "\"interfaceInfo\":[{\"key\": \"type\",\"value\": \"docker\"}]} ");
+                request.addHeader("content-type", "application/json");
+                request.setEntity(params);
+                HttpResponse response = httpClient.execute(request);
+
                 return id.getResourceId();
             }
             catch (Exception e){

@@ -1,5 +1,7 @@
 package elastest.epm.adapter.docker;
 
+import elastest.epm.adapter.docker.core.OperationHandler;
+import elastest.epm.adapter.docker.model.AdapterProperties;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import org.slf4j.Logger;

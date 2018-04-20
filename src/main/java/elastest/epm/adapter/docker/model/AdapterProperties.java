@@ -1,4 +1,4 @@
-package elastest.epm.adapter.docker;
+package elastest.epm.adapter.docker.model;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;

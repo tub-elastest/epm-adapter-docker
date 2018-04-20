@@ -12,10 +12,9 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.ExecStartResultCallback;
 import com.github.dockerjava.core.command.PullImageResultCallback;
-import com.sun.org.apache.bcel.internal.generic.POP;
-import elastest.epm.adapter.docker.AdapterException;
-import elastest.epm.adapter.docker.DockerCredentials;
-import elastest.epm.adapter.docker.LogstashConfig;
+import elastest.epm.adapter.docker.exceptions.AdapterException;
+import elastest.epm.adapter.docker.model.DockerCredentials;
+import elastest.epm.adapter.docker.model.LogstashConfig;
 import elastest.epm.adapter.docker.Utils;
 import elastest.epm.adapter.docker.generated.PoP;
 import elastest.epm.adapter.docker.model.Package;
@@ -27,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Component

@@ -1,4 +1,4 @@
-package elastest.epm.adapter.docker;
+package elastest.epm.adapter.docker.model;
 
 public class LogstashConfig {
 
