@@ -30,9 +30,11 @@ public class OperationHandler extends OperationHandlerGrpc.OperationHandlerImplB
     @Override
     public void create(
             FileMessage request, io.grpc.stub.StreamObserver<ResourceGroupProto> responseObserver) {
-        ResourceGroup rg = null;
+        log.info("Deploying package...");
         try {
-            rg = Utils.extractResourceGroup(request.getFile().newInput());
+            ResourceGroup rg = Utils.extractResourceGroup(request.getFile().newInput());
+            if(rg == null) throw new Exception("No Resource Group in Request!");
+
             LogstashConfig logstashConfig = new LogstashConfig();
             if (request.getOptionsCount() >= 2 ){
                 logstashConfig.setEnabled(Boolean.parseBoolean(request.getOptions(0)));
@@ -41,6 +43,7 @@ public class OperationHandler extends OperationHandlerGrpc.OperationHandlerImplB
                 logstashConfig.setEnabled(false);
                 logstashConfig.setAddress("");
             }
+            log.info(logstashConfig.toString());
             DockerCredentials dockerCredentials = Utils.getDockerCredentials(request.getFile().newInput());
 
             ResourceGroup output = dockerHandler.deployResourceGroup(rg, request.getPop(), logstashConfig, dockerCredentials);
@@ -57,7 +60,8 @@ public class OperationHandler extends OperationHandlerGrpc.OperationHandlerImplB
             responseObserver.onNext(utils.translate(rg));
             responseObserver.onCompleted();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.info("Could not create package: " + e.getMessage());
+            responseObserver.onCompleted();
         }
 
     }

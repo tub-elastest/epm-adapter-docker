@@ -38,7 +38,7 @@ public class DockerHandler {
     private DockerClient getDockerClient(PoP poP) {
 
         String endpoint = poP.getInterfaceEndpoint();
-        if(endpoint.equals("elastest-epm-adapter-docker")) endpoint = "unix:///var/run/docker.sock";
+        if(endpoint.equals("elastest-epm-adapter-docker") || endpoint.equals("localhost")) endpoint = "unix:///var/run/docker.sock";
         DockerClientConfig dockerClientConfig =
                 DefaultDockerClientConfig.createDefaultConfigBuilder()
                         .withDockerHost(endpoint)
@@ -62,6 +62,7 @@ public class DockerHandler {
 
     public ResourceGroup deployResourceGroup(ResourceGroup resourceGroup, PoP poP, LogstashConfig logstashConfig, DockerCredentials dockerCredentials) throws AdapterException {
         log.info("Deploying Resource Group: " + resourceGroup);
+        log.debug("Resource group: " + resourceGroup.toString());
         int groupId = (int) (Math.random() * 1000000);
         try {
             for (Network net : resourceGroup.getNetworks()) {
@@ -74,8 +75,8 @@ public class DockerHandler {
                 deployVdu(vdu, poP, logstashConfig, dockerCredentials);
             }
         } catch (Exception exc) {
-            log.error(exc.getMessage(), exc);
-            log.error("Rollback allocation of resource group...");
+            log.info(exc.getMessage(), exc);
+            log.info("Rollback allocation of resource group...");
             for (VDU vdu : resourceGroup.getVdus()) {
                 if (vdu.getId() != null) {
                     try {

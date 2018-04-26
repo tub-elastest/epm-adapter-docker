@@ -38,15 +38,13 @@ public class Utils {
     public static ResourceGroup extractResourceGroup(InputStream p) throws ArchiveException, IOException {
         ArchiveInputStream t = new ArchiveStreamFactory().createArchiveInputStream("tar", p);
 
-        Map<String, Object> values = null;
         TarArchiveEntry entry = (TarArchiveEntry) t.getNextEntry();
         while (entry != null) {
             if (entry.getName().toLowerCase().contains(".json")) {
                 Gson gson = new Gson();
                 byte[] content = new byte[(int) entry.getSize()];
                 t.read(content, 0, content.length);
-                ResourceGroup resourceGroup = gson.fromJson(new String(content), ResourceGroup.class);
-                return resourceGroup;
+                return gson.fromJson(new String(content), ResourceGroup.class);
             }
         }
 
@@ -250,7 +248,7 @@ public class Utils {
                 ResourceIdentifier id = stub.registerAdapter(adapterProto);
 
                 HttpPost request = new HttpPost("http://" + epmIp + ":8180/v1/pop");
-                StringEntity params =new StringEntity(" {\"name\": \"compose-" + adapterIp + "\", \"interfaceEndpoint\":" + adapterIp + ", " +
+                StringEntity params =new StringEntity(" {\"name\": \"docker-" + adapterIp + "\", \"interfaceEndpoint\":" + adapterIp + ", " +
                                                         "\"interfaceInfo\":[{\"key\": \"type\",\"value\": \"docker\"}]} ");
                 request.addHeader("content-type", "application/json");
                 request.setEntity(params);
