@@ -2,11 +2,12 @@ package elastest.epm.adapter.docker.core;
 
 import com.google.protobuf.ByteString;
 import elastest.epm.adapter.docker.Utils;
-import elastest.epm.adapter.docker.core.DockerHandler;
 import elastest.epm.adapter.docker.exceptions.AdapterException;
 import elastest.epm.adapter.docker.generated.*;
 import elastest.epm.adapter.docker.model.*;
+import elastest.epm.adapter.docker.model.Network;
 import elastest.epm.adapter.docker.model.Package;
+import elastest.epm.adapter.docker.model.VDU;
 import elastest.epm.adapter.docker.repository.PackageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,12 +37,14 @@ public class OperationHandler extends OperationHandlerGrpc.OperationHandlerImplB
             if(rg == null) throw new Exception("No Resource Group in Request!");
 
             LogstashConfig logstashConfig = new LogstashConfig();
-            if (request.getOptionsCount() >= 2 ){
-                logstashConfig.setEnabled(Boolean.parseBoolean(request.getOptions(0)));
-                logstashConfig.setAddress(request.getOptions(1));
-            } else {
-                logstashConfig.setEnabled(false);
-                logstashConfig.setAddress("");
+            logstashConfig.setEnabled(false);
+            logstashConfig.setAddress("");
+            for( MetadataEntry entry : request.getMetadataList()) {
+                if (entry.getKey().equals("enabled")) {
+                    logstashConfig.setEnabled(Boolean.parseBoolean(entry.getValue()));
+                }
+                if (entry.getKey().equals("address"))
+                    logstashConfig.setAddress(entry.getValue());
             }
             log.info(logstashConfig.toString());
             DockerCredentials dockerCredentials = Utils.getDockerCredentials(request.getFile().newInput());
@@ -68,8 +71,8 @@ public class OperationHandler extends OperationHandlerGrpc.OperationHandlerImplB
 
     @Override
     public void remove(
-            ResourceIdentifier request, io.grpc.stub.StreamObserver<Empty> responseObserver) {
-        String vduId = request.getResourceId();
+            TerminateMessage terminateMessage, io.grpc.stub.StreamObserver<Empty> responseObserver) {
+        String vduId = terminateMessage.getVdu().getComputeId();
         Package packageDelete = null;
         for(Package p : packageRepository.findAll()){
             if( p.getComputeIds().contains(vduId)){
@@ -77,7 +80,7 @@ public class OperationHandler extends OperationHandlerGrpc.OperationHandlerImplB
             }
         }
         if(packageDelete != null){
-            dockerHandler.terminatePackage(packageDelete, request.getPop());
+            dockerHandler.terminatePackage(packageDelete, terminateMessage.getPop());
         }
         Empty e = Empty.newBuilder().build();
         responseObserver.onNext(e);
@@ -85,7 +88,7 @@ public class OperationHandler extends OperationHandlerGrpc.OperationHandlerImplB
     }
 
     @Override
-    public void stopContainer(
+    public void stop(
             ResourceIdentifier request, io.grpc.stub.StreamObserver<Empty> responseObserver) {
 
         try {
@@ -100,7 +103,7 @@ public class OperationHandler extends OperationHandlerGrpc.OperationHandlerImplB
     }
 
     @Override
-    public void startContainer(
+    public void start(
             ResourceIdentifier request, io.grpc.stub.StreamObserver<Empty> responseObserver) {
         try {
             log.info("Starting container: " + request.getResourceId());
@@ -117,8 +120,9 @@ public class OperationHandler extends OperationHandlerGrpc.OperationHandlerImplB
     public void executeCommand(
             RuntimeMessage request, io.grpc.stub.StreamObserver<StringResponse> responseObserver) {
         try {
-            log.info("Executing command: " + request.getProperty(0) + " on container: " + request.getResourceId());
-            String response = dockerHandler.executeOnInstance(request.getResourceId(), request.getProperty(0), true, request.getPop());
+            String resourceId = request.getVdu().getComputeId();
+            log.info("Executing command: " + request.getProperty(0) + " on container: " + resourceId);
+            String response = dockerHandler.executeOnInstance(resourceId, request.getProperty(0), true, request.getPop());
             StringResponse stringResponse = StringResponse.newBuilder().setResponse(response).build();
             responseObserver.onNext(stringResponse);
             responseObserver.onCompleted();
@@ -131,8 +135,9 @@ public class OperationHandler extends OperationHandlerGrpc.OperationHandlerImplB
     public void downloadFile(
             RuntimeMessage request, io.grpc.stub.StreamObserver<FileMessage> responseObserver) {
         try {
-            log.info("Downloading file: " + request.getProperty(0) + " from " + request.getResourceId());
-            InputStream is = dockerHandler.downloadFileFromInstance(request.getResourceId(), request.getProperty(0), request.getPop());
+            String resourceId = request.getVdu().getComputeId();
+            log.info("Downloading file: " + request.getProperty(0) + " from " + resourceId);
+            InputStream is = dockerHandler.downloadFileFromInstance(resourceId, request.getProperty(0), request.getPop());
             ByteString byteString = null;
             try {
                 byteString = ByteString.readFrom(is);
@@ -151,12 +156,12 @@ public class OperationHandler extends OperationHandlerGrpc.OperationHandlerImplB
     public void uploadFile(
             RuntimeMessage request, io.grpc.stub.StreamObserver<Empty> responseObserver) {
 
-        String id = request.getResourceId();
+        String resourceId = request.getVdu().getComputeId();
         String type = request.getProperty(0);
         if(type.equals("withPath")){
             try {
-                log.info("Uploading file: " + request.getProperty(1) + " to container: " + request.getResourceId());
-                dockerHandler.uploadFileToInstance(id, request.getProperty(1), request.getProperty(2), request.getPop());
+                log.info("Uploading file: " + request.getProperty(1) + " to container: " + resourceId);
+                dockerHandler.uploadFileToInstance(resourceId, request.getProperty(1), request.getProperty(2), request.getPop());
                 Empty e = Empty.newBuilder().build();
                 responseObserver.onNext(e);
                 responseObserver.onCompleted();
@@ -167,8 +172,8 @@ public class OperationHandler extends OperationHandlerGrpc.OperationHandlerImplB
         } else{
             InputStream is = new ByteArrayInputStream(request.getFile().toByteArray());
             try {
-                log.info("Uploading file: " + type + " to container: " + request.getResourceId());
-                dockerHandler.uploadFileToInstance(id, type, is, request.getPop());
+                log.info("Uploading file: " + type + " to container: " + resourceId);
+                dockerHandler.uploadFileToInstance(resourceId, type, is, request.getPop());
                 Empty e = Empty.newBuilder().build();
                 responseObserver.onNext(e);
                 responseObserver.onCompleted();
@@ -178,6 +183,7 @@ public class OperationHandler extends OperationHandlerGrpc.OperationHandlerImplB
         }
     }
 
+    /*
     @Override
     public void checkIfContainerExists(
             ResourceIdentifier request, io.grpc.stub.StreamObserver<StringResponse> responseObserver) {
@@ -208,5 +214,5 @@ public class OperationHandler extends OperationHandlerGrpc.OperationHandlerImplB
             responseObserver.onNext(stringResponse);
             responseObserver.onCompleted();
         }
-    }
+    }*/
 }

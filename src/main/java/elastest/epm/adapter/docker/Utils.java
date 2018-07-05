@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import elastest.epm.adapter.docker.generated.*;
 import elastest.epm.adapter.docker.model.*;
 import elastest.epm.adapter.docker.model.Network;
+import elastest.epm.adapter.docker.model.VDU;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.apache.commons.compress.archivers.ArchiveException;
@@ -202,11 +203,11 @@ public class Utils {
 
     public ResourceGroupProto translate(ResourceGroup rg){
 
-        ArrayList<ResourceGroupProto.Network> networks = new ArrayList<>();
-        ArrayList<ResourceGroupProto.VDU> vdus = new ArrayList<>();
+        ArrayList<elastest.epm.adapter.docker.generated.Network> networks = new ArrayList<>();
+        ArrayList<elastest.epm.adapter.docker.generated.VDU> vdus = new ArrayList<>();
 
         for(Network network : rg.getNetworks()){
-            ResourceGroupProto.Network n = ResourceGroupProto.Network.newBuilder()
+            elastest.epm.adapter.docker.generated.Network n = elastest.epm.adapter.docker.generated.Network.newBuilder()
                     .setName(network.getName())
                     .setCidr(network.getCidr())
                     .setNetworkId(network.getNetworkId())
@@ -216,7 +217,7 @@ public class Utils {
         }
 
         for(VDU vdu: rg.getVdus()){
-            ResourceGroupProto.VDU newVDU = ResourceGroupProto.VDU.newBuilder()
+            elastest.epm.adapter.docker.generated.VDU newVDU = elastest.epm.adapter.docker.generated.VDU.newBuilder()
                     .setName(vdu.getName())
                     .setComputeId(vdu.getComputeId())
                     .setImageName(vdu.getImageName())
@@ -228,9 +229,9 @@ public class Utils {
         }
 
         ResourceGroupProto resourceGroupProto = ResourceGroupProto.newBuilder().setName(rg.getName()).build();
-        for(ResourceGroupProto.Network n : networks)
+        for(elastest.epm.adapter.docker.generated.Network n : networks)
             resourceGroupProto = resourceGroupProto.toBuilder().addNetworks(n).build();
-        for(ResourceGroupProto.VDU vdu : vdus)
+        for(elastest.epm.adapter.docker.generated.VDU vdu : vdus)
             resourceGroupProto = resourceGroupProto.toBuilder().addVdus(vdu).build();
         return resourceGroupProto;
     }
