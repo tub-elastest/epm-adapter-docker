@@ -36,7 +36,7 @@ public class Utils {
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
 
-    public static ResourceGroup extractResourceGroup(InputStream p) throws ArchiveException, IOException {
+    public ResourceGroup extractResourceGroup(InputStream p) throws ArchiveException, IOException {
         ArchiveInputStream t = new ArchiveStreamFactory().createArchiveInputStream("tar", p);
 
         TarArchiveEntry entry = (TarArchiveEntry) t.getNextEntry();
@@ -47,6 +47,7 @@ public class Utils {
                 t.read(content, 0, content.length);
                 return gson.fromJson(new String(content), ResourceGroup.class);
             }
+            entry = (TarArchiveEntry) t.getNextEntry();
         }
 
         return null;
