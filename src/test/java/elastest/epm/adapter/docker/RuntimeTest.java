@@ -39,14 +39,15 @@ public class RuntimeTest {
         ByteString byteString = ByteString.readFrom(f);
         FileMessage fileMessage = FileMessage.newBuilder().setFile(byteString).setPop(poP).build();
         ResourceGroupProto resourceGroupProto = stub.create(fileMessage);
+        VDU vdu = resourceGroupProto.getVdus(0);
         f.close();
 
         String id = resourceGroupProto.getVdusList().get(0).getComputeId();
         ResourceIdentifier resourceIdentifier = ResourceIdentifier.newBuilder().setResourceId(id).setPop(poP).build();
 
 
-        stub.stopContainer(resourceIdentifier);
-        stub.startContainer(resourceIdentifier);
+        stub.stop(resourceIdentifier);
+        stub.start(resourceIdentifier);
 
         InputStream fis = new FileInputStream("docker-package.tar");
         ByteString bs = ByteString.readFrom(fis);
@@ -61,7 +62,9 @@ public class RuntimeTest {
         FileMessage fm = stub.downloadFile(download);
         log.info(fm.getFile().toStringUtf8());
 
-        stub.remove(resourceIdentifier);
+        TerminateMessage terminateMessage = TerminateMessage.newBuilder().setResourceId(id).setPop(poP).setVdu(vdu).build();
+
+        stub.remove(terminateMessage);
     }
 
 
